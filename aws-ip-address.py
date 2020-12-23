@@ -20,28 +20,25 @@ def download_addresses(url="https://ip-ranges.amazonaws.com/ip-ranges.json"):
 
 def extract_ipv4(ip_ranges_json):
 
-    ipv4prefixes = list()
+    ipv4prefixes = set()
     for prefix in ip_ranges_json["prefixes"]:
-        ipv4prefixes.append(prefix["ip_prefix"])
+        ipv4prefixes.add(prefix["ip_prefix"])
 
     return ipv4prefixes
 
 
 def extract_ipv6(ip_ranges_json):
 
-    ipv6prefixes = list()
+    ipv6prefixes = set()
     for prefix in ip_ranges_json["ipv6_prefixes"]:
-        ipv6prefixes.append((ip_network(prefix["ipv6_prefix"]).exploded))
+        ipv6prefixes.add((ip_network(prefix["ipv6_prefix"]).exploded))
 
     return ipv6prefixes
 
 
 def reduce_cidr(prefixes):
 
-    # Remove any duplicate CIDRs
-
-    cidr = list()
-    [cidr.append(x) for x in prefixes if x not in cidr]
+    cidr = list(prefixes)
     cidr.sort()
 
     # Remove CIDRs that are subnets of other CIDRs.
@@ -113,28 +110,13 @@ def write_cidr(networks):
     return
 
 
-print(".", end="")
-
 ip_ranges_json = download_addresses()
-
-print(".", end="")
 
 ipv4 = extract_ipv4(ip_ranges_json)
 
-# ipv6 = extract_ipv6(ip_ranges_json)
-
-print(".", end="")
-
 ipv4 = reduce_cidr(ipv4)
 
-# ipv6 = reduce_cidr(ipv6)
-
-# print_cidr(ipv4)
-
-# print_cidr(ipv6)
-
-print(list_cidr(ipv4))
-
-print(".", end="")
+print_cidr(ipv4)
 
 # write_cidr(ipv4)
+
